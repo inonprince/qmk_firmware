@@ -339,8 +339,8 @@ bool keyframe_display_mods_bitmap(keyframe_animation_t* animation, visualizer_st
 
     const char* title = "Modifier states";
     const char* mods_header = " CSAG CSAG ";
-    char status_buffer[12]; 
-    
+    char status_buffer[12];
+
     gdispClear(White);
     gdispDrawString(0, 0, title, state->font_fixed5x8, Black);
     gdispDrawString(0, 10, mods_header, state->font_fixed5x8, Black);
@@ -550,7 +550,7 @@ uint8_t visualizer_get_mods() {
   if (!has_oneshot_mods_timed_out()) {
     mods |= get_oneshot_mods();
   }
-#endif  
+#endif
   return mods;
 }
 
