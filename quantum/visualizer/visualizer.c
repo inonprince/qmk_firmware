@@ -48,13 +48,12 @@ SOFTWARE.
 #include "serial_link/system/serial_link.h"
 #endif
 
+#include "action_util.h"
+
 // Define this in config.h
 #ifndef VISUALIZER_THREAD_PRIORITY
 #define "Visualizer thread priority not defined"
 #endif
-
-// mods status
-#include "action_util.h"
 
 static visualizer_keyboard_status_t current_status = {
     .layer = 0xFFFFFFFF,
@@ -62,6 +61,9 @@ static visualizer_keyboard_status_t current_status = {
     .mods = 0xFF,
     .leds = 0xFFFFFFFF,
     .suspended = false,
+#ifdef VISUALIZER_USER_DATA_SIZE
+    .user_data = {0}
+#endif
 };
 
 static bool same_status(visualizer_keyboard_status_t* status1, visualizer_keyboard_status_t* status2) {
@@ -69,10 +71,18 @@ static bool same_status(visualizer_keyboard_status_t* status1, visualizer_keyboa
         status1->default_layer == status2->default_layer &&
         status1->mods == status2->mods &&
         status1->leds == status2->leds &&
-        status1->suspended == status2->suspended;
+        status1->suspended == status2->suspended
+#ifdef VISUALIZER_USER_DATA_SIZE
+        && memcmp(status1->user_data, status2->user_data, VISUALIZER_USER_DATA_SIZE) == 0
+#endif
+    ;
 }
 
 static bool visualizer_enabled = false;
+
+#ifdef VISUALIZER_USER_DATA_SIZE
+static uint8_t user_data[VISUALIZER_USER_DATA_SIZE];
+#endif
 
 #define MAX_SIMULTANEOUS_ANIMATIONS 4
 static keyframe_animation_t* animations[MAX_SIMULTANEOUS_ANIMATIONS] = {};
@@ -142,6 +152,14 @@ void stop_all_keyframe_animations(void) {
             animations[i] = NULL;
         }
     }
+}
+
+static uint8_t get_num_running_animations(void) {
+    uint8_t count = 0;
+    for (int i=0;i<MAX_SIMULTANEOUS_ANIMATIONS;i++) {
+        count += animations[i] ? 1 : 0;
+    }
+    return count;
 }
 
 static bool update_keyframe_animation(keyframe_animation_t* animation, visualizer_state_t* state, systemticks_t delta, systemticks_t* sleep_time) {
@@ -396,6 +414,9 @@ static DECLARE_THREAD_FUNCTION(visualizerThread, arg) {
         .mods = 0xFF,
         .leds = 0xFFFFFFFF,
         .suspended = false,
+#ifdef VISUALIZER_USER_DATA_SIZE
+        .user_data = {0},
+#endif
     };
 
     visualizer_state_t state = {
@@ -418,13 +439,15 @@ static DECLARE_THREAD_FUNCTION(visualizerThread, arg) {
 
     systemticks_t sleep_time = TIME_INFINITE;
     systemticks_t current_time = gfxSystemTicks();
+    bool force_update = true;
 
     while(true) {
         systemticks_t new_time = gfxSystemTicks();
         systemticks_t delta = new_time - current_time;
         current_time = new_time;
         bool enabled = visualizer_enabled;
-        if (!same_status(&state.status, &current_status)) {
+        if (force_update || !same_status(&state.status, &current_status)) {
+            force_update = false;
             if (visualizer_enabled) {
                 if (current_status.suspended) {
                     stop_all_keyframe_animations();
@@ -433,8 +456,9 @@ static DECLARE_THREAD_FUNCTION(visualizerThread, arg) {
                     user_visualizer_suspend(&state);
                 }
                 else {
+                    visualizer_keyboard_status_t prev_status = state.status;
                     state.status = current_status;
-                    update_user_visualizer_state(&state);
+                    update_user_visualizer_state(&state, &prev_status);
                 }
                 state.prev_lcd_color = state.current_lcd_color;
             }
@@ -458,13 +482,17 @@ static DECLARE_THREAD_FUNCTION(visualizerThread, arg) {
         gdispGFlush(LED_DISPLAY);
 #endif
 
+#ifdef LCD_ENABLE
+        gdispGFlush(LCD_DISPLAY);
+#endif
+
 #ifdef EMULATOR
         draw_emulator();
 #endif
-        // The animation can enable the visualizer
-        // And we might need to update the state when that happens
-        // so don't sleep
-        if (enabled != visualizer_enabled) {
+        // Enable the visualizer when the startup or the suspend animation has finished
+        if (!visualizer_enabled && state.status.suspended == false && get_num_running_animations() == 0) {
+            visualizer_enabled = true;
+            force_update = true;
             sleep_time = 0;
         }
 
@@ -554,6 +582,12 @@ uint8_t visualizer_get_mods() {
   return mods;
 }
 
+#ifdef VISUALIZER_USER_DATA_SIZE
+void visualizer_set_user_data(void* u) {
+    memcpy(user_data, u, VISUALIZER_USER_DATA_SIZE);
+}
+#endif
+
 void visualizer_update(uint32_t default_state, uint32_t state, uint8_t mods, uint32_t leds) {
     // Note that there's a small race condition here, the thread could read
     // a state where one of these are set but not the other. But this should
@@ -582,6 +616,9 @@ void visualizer_update(uint32_t default_state, uint32_t state, uint8_t mods, uin
             .leds = leds,
             .suspended = current_status.suspended,
         };
+#ifdef VISUALIZER_USER_DATA_SIZE
+       memcpy(new_status.user_data, user_data, VISUALIZER_USER_DATA_SIZE);
+#endif
         if (!same_status(&current_status, &new_status)) {
             changed = true;
             current_status = new_status;
