@@ -755,6 +755,7 @@ static bool mousekey_console(uint8_t code)
             mk_time_to_max = MOUSEKEY_TIME_TO_MAX;
             mk_wheel_max_speed = MOUSEKEY_WHEEL_MAX_SPEED;
             mk_wheel_time_to_max = MOUSEKEY_WHEEL_TIME_TO_MAX;
+	        mk_wheel_interval = MOUSEKEY_WHEEL_INTERVAL;
             print("set default\n");
             break;
         default:

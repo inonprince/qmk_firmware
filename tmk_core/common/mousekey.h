@@ -59,7 +59,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MOUSEKEY_WHEEL_TIME_TO_MAX
 #define MOUSEKEY_WHEEL_TIME_TO_MAX 40
 #endif
-
+#ifndef MOUSEKEY_WHEEL_INTERVAL
+#define MOUSEKEY_WHEEL_INTERVAL 40
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,6 +73,7 @@ extern uint8_t mk_max_speed;
 extern uint8_t mk_time_to_max;
 extern uint8_t mk_wheel_max_speed;
 extern uint8_t mk_wheel_time_to_max;
+extern uint8_t mk_wheel_interval;
 
 
 void mousekey_task(void);
