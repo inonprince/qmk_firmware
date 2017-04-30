@@ -45,7 +45,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         TG(2),          KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_ESC,
         KC_EQL,         KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_TAB,
                         KC_D,           KC_H,           KC_T,           KC_N,           KC_S,           MO(1),
-        KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           SFT_T(KC_BSPC),
+        KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           KC_FN0,
                                         KC_RGUI,        KC_RALT,        KC_RCTRL,       KC_RBRC,        KC_BSLS,
         KC_UP,          KC_DOWN,
         KC_PGUP,
@@ -219,6 +219,7 @@ KEYMAP(
 };
 
 const uint16_t PROGMEM fn_actions[] = {
+    [0] = ACTION_MODS_TAP_KEY(MOD_RSFT, KC_BSPC),
     [1] = ACTION_LAYER_TAP_TOGGLE(SYMB)                // FN1 - Momentary Layer 1 (Symbols)
 };
 
