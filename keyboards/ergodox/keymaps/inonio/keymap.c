@@ -243,6 +243,26 @@ void matrix_init_user(void) {
 
 };
 
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  bool queue = true;
+
+  //switch off mouse wheel layer (when releasing E after U)
+  switch (keycode) {
+    case KC_E:
+      if (record->event.pressed) {
+      } else {
+        uint8_t layer = biton32(layer_state);
+        switch (layer) {
+          case 4:
+            layer_off(4);
+        }
+      }
+      break;
+  }
+  return queue;
+}
+
+
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
 
