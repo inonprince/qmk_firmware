@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "action_macro.h"
 #include "action_util.h"
 #include "action.h"
+#include "timer.h"
 
 #ifdef DEBUG_ACTION
 #include "debug.h"
@@ -708,6 +709,9 @@ void clear_keyboard(void)
     clear_keyboard_but_mods();
 }
 
+static uint16_t last_cleared_timer = 0;
+
+
 void clear_keyboard_but_mods(void)
 {
     clear_weak_mods();
@@ -715,8 +719,11 @@ void clear_keyboard_but_mods(void)
     clear_keys();
     send_keyboard_report();
 #ifdef MOUSEKEY_ENABLE
-    mousekey_clear();
-    mousekey_send();
+    if (timer_elapsed(last_cleared_timer) > 25) {
+      last_cleared_timer = timer_read();
+      mousekey_clear();
+      mousekey_send();
+    }
 #endif
 #ifdef EXTRAKEY_ENABLE
     host_system_send(0);
