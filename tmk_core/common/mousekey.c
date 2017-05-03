@@ -63,11 +63,11 @@ static uint8_t move_unit(void)
 {
     uint16_t unit;
     if (mousekey_accel & (1<<0)) {
-        unit = (MOUSEKEY_MOVE_DELTA * mk_max_speed)*3;
+        unit = (MOUSEKEY_MOVE_DELTA * mk_max_speed)/3;
     } else if (mousekey_accel & (1<<1)) {
         unit = (MOUSEKEY_MOVE_DELTA * mk_max_speed)*2;
     } else if (mousekey_accel & (1<<2)) {
-        unit = (MOUSEKEY_MOVE_DELTA * mk_max_speed);
+        unit = (MOUSEKEY_MOVE_DELTA * mk_max_speed)*4;
     } else if (mousekey_repeat == 0) {
         unit = MOUSEKEY_MOVE_DELTA;
     } else if (mousekey_repeat >= mk_time_to_max) {
@@ -82,11 +82,11 @@ static uint8_t wheel_unit(void)
 {
     uint16_t unit;
     if (mousekey_accel & (1<<0)) {
-        unit = (MOUSEKEY_WHEEL_DELTA * mk_wheel_max_speed)*4;
+        unit = (MOUSEKEY_WHEEL_DELTA * mk_wheel_max_speed)/3;
     } else if (mousekey_accel & (1<<1)) {
         unit = (MOUSEKEY_WHEEL_DELTA * mk_wheel_max_speed)*2;
     } else if (mousekey_accel & (1<<2)) {
-        unit = (MOUSEKEY_WHEEL_DELTA * mk_wheel_max_speed);
+        unit = (MOUSEKEY_WHEEL_DELTA * mk_wheel_max_speed)*4;
     } else if (mousekey_repeat == 0) {
         unit = MOUSEKEY_WHEEL_DELTA;
     } else if (mousekey_repeat >= mk_wheel_time_to_max) {
@@ -184,7 +184,11 @@ void mousekey_off(uint8_t code)
     else if (code == KC_MS_BTN3) mouse_report.buttons &= ~MOUSE_BTN3;
     else if (code == KC_MS_BTN4) mouse_report.buttons &= ~MOUSE_BTN4;
     else if (code == KC_MS_BTN5) mouse_report.buttons &= ~MOUSE_BTN5;
-    else if (code == KC_MS_ACCEL0) mousekey_accel &= ~(1<<0);
+    else if (code == KC_MS_ACCEL0) {
+        // switching back from slowmo.
+        mousekey_accel &= ~(1<<0);
+        mousekey_repeat = 0;
+    }
     else if (code == KC_MS_ACCEL1) mousekey_accel &= ~(1<<1);
     else if (code == KC_MS_ACCEL2) mousekey_accel &= ~(1<<2);
 
