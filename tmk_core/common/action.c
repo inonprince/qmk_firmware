@@ -719,7 +719,7 @@ void clear_keyboard_but_mods(void)
     clear_keys();
     send_keyboard_report();
 #ifdef MOUSEKEY_ENABLE
-    if (timer_elapsed(last_cleared_timer) > 25) {
+    if (timer_elapsed(last_cleared_timer) > 50) {
       last_cleared_timer = timer_read();
       mousekey_clear();
       mousekey_send();
