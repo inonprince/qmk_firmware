@@ -15,19 +15,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONFIG_H
-#define CONFIG_H
 
-#include "config_common.h"
+#define USE_SERIAL
+
+// #define MASTER_LEFT
+#define _MASTER_RIGHT
+// #define EE_HANDS
 
 #ifdef SUBPROJECT_rev1
-    #include "rev1/config.h"
+    #include "../../rev1/config.h"
 #endif
 #ifdef SUBPROJECT_rev2
-    #include "rev2/config.h"
+    #include "../../rev2/config.h"
 #endif
 #ifdef SUBPROJECT_rev2fliphalf
 	#include "../../rev2fliphalf/config.h"
 #endif
-#endif
-#define MASTER_RIGHT
+
+#undef RGBLED_NUM
+#define RGBLIGHT_ANIMATIONS
+#undef RGBLED_NUM
+#define RGBLED_NUM 10
+#define RGBLIGHT_HUE_STEP 8
+#define RGBLIGHT_SAT_STEP 8
+#define RGBLIGHT_VAL_STEP 8
