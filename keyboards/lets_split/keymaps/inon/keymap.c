@@ -226,14 +226,23 @@ void persistent_default_layer_set(uint16_t default_layer) {
 }
 
 // Setting ADJUST layer RGB back to default
-void update_tri_layer_RGB(uint8_t layer1, uint8_t layer2, uint8_t layer3) {
-  if (IS_LAYER_ON(layer1) && IS_LAYER_ON(layer2)) {
-    rgblight_mode(RGB_current_mode);
-    layer_on(layer3);
+void update_rgb(void) {
+  if (IS_LAYER_ON(_RAISE) && IS_LAYER_ON(_LOWER)) {
+    rgblight_mode(0);
+  } else if (IS_LAYER_ON(_RAISE)) {
+    rgblight_mode(33);
+  } else if (IS_LAYER_ON(_LOWER)) {
+    rgblight_mode(26);
   } else {
-    layer_off(layer3);
+    rgblight_mode(1);
+    rgblight_setrgb(0x00,0xff,0x00);
   }
 }
+
+void matrix_init_user(void) {
+  rgblight_mode(1);
+  rgblight_setrgb(0x00,0xff,0x00);
+};
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
@@ -266,40 +275,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     case LOWER:
       if (record->event.pressed) {
-        //not sure how to have keyboard check mode and set it to a variable, so my work around
-        //uses another variable that would be set to true after the first time a reactive key is pressed.
-        if (TOG_STATUS) { //TOG_STATUS checks is another reactive key currently pressed, only changes RGB mode if returns false
-        } else {
-          TOG_STATUS = !TOG_STATUS;
-          rgblight_mode(26);
-        }
         layer_on(_LOWER);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
       } else {
-        rgblight_mode(RGB_current_mode);   // revert RGB to initial mode prior to RGB mode change
-        TOG_STATUS = false;
         layer_off(_LOWER);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
       }
+      update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      update_rgb();
       return false;
       break;
     case RAISE:
-      if (record->event.pressed) {
-        //not sure how to have keyboard check mode and set it to a variable, so my work around
-        //uses another variable that would be set to true after the first time a reactive key is pressed.
-        if (TOG_STATUS) { //TOG_STATUS checks is another reactive key currently pressed, only changes RGB mode if returns false
-        } else {
-          TOG_STATUS = !TOG_STATUS;
-          rgblight_mode(33);
-        }
+    if (record->event.pressed) {
         layer_on(_RAISE);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
       } else {
-        rgblight_mode(RGB_current_mode);  // revert RGB to initial mode prior to RGB mode change
         layer_off(_RAISE);
-        TOG_STATUS = false;
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
       }
+      update_tri_layer(_LOWER, _RAISE, _ADJUST);
+      update_rgb();
       return false;
       break;
     case ADJUST:
@@ -308,10 +299,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         layer_off(_ADJUST);
       }
+      update_rgb();
       return false;
       break;
     case KC_E:
       if (record->event.pressed) {
+        // uprint("1");
       } else {
         uint8_t layer = biton32(layer_state);
         switch (layer) {
