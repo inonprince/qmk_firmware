@@ -1,6 +1,5 @@
 # avrdude -p atmega32u4 -c avr109 -P /dev/tty.usbmodem1411  -U flash:w:../../.build/lets_split_rev2_inon.hex
 
-<<<<<<< Updated upstream
 # max file size: 28672
 
 USE_I2C = no
