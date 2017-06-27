@@ -250,12 +250,12 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 void matrix_init_user(void) {
 };
 
-bool bspc_mode = false;
-bool bspc_mode2 = false;
+uint8_t bspc_mode = 0;
 uint16_t gui_timer = 0;
-uint16_t gui_timer2 = 0;
-
+uint16_t bksp_timer = 0;
+uint16_t bksp_timer2 = 0;
 bool otherkeypressed = false;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   bool queue = true;
   if (record->event.pressed) {
@@ -264,10 +264,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   uint8_t layer = layer_state;
 
-  if (record->event.pressed && bspc_mode == true && keycode != RSHIFT_BKSP) {
+  if (record->event.pressed && bspc_mode == 1 && keycode != RSHIFT_BKSP) {
     register_code (KC_RSFT);
-    bspc_mode = false;
-    gui_timer2 = 0;
+    bspc_mode = 0;
+    bksp_timer2 = 0;
   }
 
   switch (keycode) {
@@ -307,28 +307,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (record->event.pressed) {
         flatten_lt_keys = true;
         otherkeypressed = false;
-        if ((gui_timer2 > 0) && (timer_elapsed(gui_timer2) < TAPPING_TERM)) {
-          bspc_mode = true;
-          gui_timer2 = timer_read();
+        if ((bksp_timer2 > 0) && (timer_elapsed(bksp_timer2) < TAPPING_TERM)) {
+          bspc_mode = 1;
+          bksp_timer2 = timer_read();
         }
-        gui_timer = timer_read();
+        bksp_timer = timer_read();
         register_code (KC_RSFT);
       } else {
         flatten_lt_keys = false;
-        if (bspc_mode2 == true) {
-          bspc_mode2 = false;
+        if (bspc_mode == 2) {
+          bspc_mode = 0;
           unregister_code (KC_BSPC);
         } else {
-          if ((timer_elapsed (gui_timer) < 150) && (otherkeypressed == false)) {
+          if ((timer_elapsed (bksp_timer) < 150) && (otherkeypressed == false)) {
             unregister_code (KC_RSFT);
             register_code (KC_BSPC);
             unregister_code (KC_BSPC);
-            bspc_mode = false;
-            gui_timer2 = timer_read();
+            bspc_mode = 0;
+            bksp_timer2 = timer_read();
           } else {
             unregister_code (KC_RSFT);
           }
-          gui_timer = 0;
+          bksp_timer = 0;
         }
       }
       queue = false;
@@ -341,10 +341,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
 
-    if ((bspc_mode == true) && (gui_timer2 > 0) && (timer_elapsed(gui_timer2) > 100)) {
-      bspc_mode = false;
-      bspc_mode2 = true;
-      gui_timer2 = 0;
+    if ((bspc_mode == 1) && (bksp_timer2 > 0) && (timer_elapsed(bksp_timer2) > 100)) {
+      bspc_mode = 2;
+      bksp_timer2 = 0;
       unregister_code (KC_RSFT);
       register_code (KC_BSPC);
     }
