@@ -1,10 +1,16 @@
 #include "ergodox.h"
 #include "debug.h"
 #include "action_layer.h"
+#include "timer.h"
 
 #define BASE 0 // default layer
 #define SYMB 1 // symbols
 #define MDIA 2 // media keys
+
+enum custom_keycodes {
+  R_GUI_ALFRED = SAFE_RANGE,
+  RSHIFT_BKSP
+};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Keymap 0: Basic layer
@@ -45,8 +51,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         TG(2),          KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_CAPS,
         KC_EQL,         KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_TAB,
                         KC_D,           KC_H,           KC_T,           KC_N,           KC_S,           MO(1),
-        KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           KC_FN0,
-                                        KC_RGUI,        KC_RALT,        KC_RCTRL,       KC_RBRC,        KC_BSLS,
+        KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           RSHIFT_BKSP,
+                                        R_GUI_ALFRED,   KC_RALT,        KC_RCTRL,       KC_RBRC,        KC_BSLS,
         KC_UP,          KC_DOWN,
         KC_PGUP,
         KC_PGDN,        KC_BSPC,        KC_ENT
@@ -219,8 +225,7 @@ KEYMAP(
 };
 
 const uint16_t PROGMEM fn_actions[] = {
-    [0] = ACTION_MODS_TAP_KEY(MOD_RSFT, KC_BSPC),
-    [1] = ACTION_LAYER_TAP_TOGGLE(SYMB)                // FN1 - Momentary Layer 1 (Symbols)
+    [0] = ACTION_MODS_TAP_KEY(MOD_RSFT, KC_BSPC)
 };
 
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
@@ -243,11 +248,26 @@ void matrix_init_user(void) {
 
 };
 
+bool otherkeypressed = false;
+bool bspc_mode = false;
+bool bspc_mode2 = false;
+uint16_t gui_timer = 0;
+uint16_t gui_timer2 = 0;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   bool queue = true;
+  if (record->event.pressed) {
+    otherkeypressed = true;
+  }
 
-  //switch off mouse wheel layer (when releasing E after U)
+  if (record->event.pressed && bspc_mode == true && keycode != RSHIFT_BKSP) {
+    register_code (KC_RSFT);
+    bspc_mode = false;
+    gui_timer2 = 0;
+  }
+
   switch (keycode) {
+
+    //switch off mouse wheel layer (when releasing E after U)
     case KC_E:
       if (record->event.pressed) {
       } else {
@@ -258,6 +278,55 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       break;
+
+    // command when held / pressed as modifier. SFT+CTRL+GUI+Y when tapped.
+    case R_GUI_ALFRED:
+      if (record->event.pressed) {
+        otherkeypressed = false;
+        gui_timer = timer_read();
+        register_code (KC_RGUI);
+      } else {
+        if ((timer_elapsed (gui_timer) < TAPPING_TERM) && (otherkeypressed == false)) {
+          register_code (KC_RSFT);
+          register_code (KC_RCTRL);
+          register_code (KC_Y);
+          unregister_code (KC_Y);
+          unregister_code (KC_RCTRL);
+          unregister_code (KC_RSFT);
+        }
+        unregister_code (KC_RGUI);
+      }
+      queue = false;
+      break;
+
+    // shift when held / pressed as modifier. BSPC when tapped.
+    case RSHIFT_BKSP:
+      if (record->event.pressed) {
+        otherkeypressed = false;
+        if ((gui_timer2 > 0) && (timer_elapsed(gui_timer2) < TAPPING_TERM)) {
+          bspc_mode = true;
+          gui_timer2 = timer_read();
+        }
+        gui_timer = timer_read();
+        register_code (KC_RSFT);
+      } else {
+        if (bspc_mode2 == true) {
+          bspc_mode2 = false;
+          unregister_code (KC_BSPC);
+        } else {
+          if ((timer_elapsed (gui_timer) < TAPPING_TERM) && (otherkeypressed == false)) {
+            unregister_code (KC_RSFT);
+            register_code (KC_BSPC);
+            unregister_code (KC_BSPC);
+            bspc_mode = false;
+            gui_timer2 = timer_read();
+          } else {
+            unregister_code (KC_RSFT);
+          }
+        }
+      }
+      queue = false;
+      break;
   }
   return queue;
 }
@@ -265,6 +334,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
+
+    if ((bspc_mode == true) && (gui_timer2 > 0) && (timer_elapsed(gui_timer2) > 100)) {
+      bspc_mode = false;
+      bspc_mode2 = true;
+      gui_timer2 = 0;
+      unregister_code (KC_RSFT);
+      register_code (KC_BSPC);
+    }
 
     uint8_t layer = biton32(layer_state);
 
