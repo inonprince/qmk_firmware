@@ -6,6 +6,9 @@
 #define BASE 0 // default layer
 #define SYMB 1 // symbols
 #define MDIA 2 // media keys
+#define _MOUSEKEYS 3
+#define _MOUSESCROLL 4
+
 
 enum custom_keycodes {
   R_GUI_ALFRED = SAFE_RANGE,
@@ -245,19 +248,21 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
-
 };
 
-bool otherkeypressed = false;
 bool bspc_mode = false;
 bool bspc_mode2 = false;
 uint16_t gui_timer = 0;
 uint16_t gui_timer2 = 0;
+
+bool otherkeypressed = false;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   bool queue = true;
   if (record->event.pressed) {
     otherkeypressed = true;
   }
+
+  uint8_t layer = layer_state;
 
   if (record->event.pressed && bspc_mode == true && keycode != RSHIFT_BKSP) {
     register_code (KC_RSFT);
@@ -271,10 +276,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_E:
       if (record->event.pressed) {
       } else {
-        uint8_t layer = biton32(layer_state);
-        switch (layer) {
-          case 4:
-            layer_off(4);
+        if (layer & (1<<_MOUSESCROLL)) {
+            layer_off(_MOUSESCROLL);
         }
       }
       break;
@@ -302,6 +305,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // shift when held / pressed as modifier. BSPC when tapped.
     case RSHIFT_BKSP:
       if (record->event.pressed) {
+        flatten_lt_keys = true;
         otherkeypressed = false;
         if ((gui_timer2 > 0) && (timer_elapsed(gui_timer2) < TAPPING_TERM)) {
           bspc_mode = true;
@@ -310,11 +314,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         gui_timer = timer_read();
         register_code (KC_RSFT);
       } else {
+        flatten_lt_keys = false;
         if (bspc_mode2 == true) {
           bspc_mode2 = false;
           unregister_code (KC_BSPC);
         } else {
-          if ((timer_elapsed (gui_timer) < TAPPING_TERM) && (otherkeypressed == false)) {
+          if ((timer_elapsed (gui_timer) < 150) && (otherkeypressed == false)) {
             unregister_code (KC_RSFT);
             register_code (KC_BSPC);
             unregister_code (KC_BSPC);
@@ -323,6 +328,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           } else {
             unregister_code (KC_RSFT);
           }
+          gui_timer = 0;
         }
       }
       queue = false;

@@ -86,7 +86,11 @@ action_t action_for_key(uint8_t layer, keypos_t key)
                 action.code = ACTION_MACRO(keycode & 0xFF);
             break;
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-            action.code = ACTION_LAYER_TAP_KEY((keycode >> 0x8) & 0xF, keycode & 0xFF);
+            if (flatten_lt_keys == true) {
+                action.code = ACTION_KEY(keycode & 0xFF);
+            } else {
+                action.code = ACTION_LAYER_TAP_KEY((keycode >> 0x8) & 0xF, keycode & 0xFF);
+            }
             break;
         case QK_TO ... QK_TO_MAX: ;
             // Layer set "GOTO"

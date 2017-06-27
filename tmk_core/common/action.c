@@ -41,6 +41,8 @@ int tp_buttons;
 #include <fauxclicky.h>
 #endif
 
+bool flatten_lt_keys = false;
+
 void action_exec(keyevent_t event)
 {
     if (!IS_NOEVENT(event)) {
