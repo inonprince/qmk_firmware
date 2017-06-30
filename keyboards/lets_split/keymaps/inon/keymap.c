@@ -1,6 +1,7 @@
 #include "lets_split.h"
 #include "action_layer.h"
 #include "eeconfig.h"
+#include "timer.h"
 
 extern keymap_config_t keymap_config;
 
@@ -29,7 +30,9 @@ enum custom_keycodes {
   LOWER,
   RAISE,
   ADJUST,
-  
+  R_GUI_ALFRED,
+  RSHIFT_BKSP,
+
   KWM_FLOAT,
   KWM_FULLSCREEN
 };
@@ -40,7 +43,6 @@ enum custom_keycodes {
 #define ARROW_O     LT(_ARROWS,KC_O)
 #define MSMV_U      LT(_MS_MV,KC_U)
 #define HYP_ESC     MT(MOD_HYPR, KC_ESC)
-#define RSFT_BS     MT(MOD_RSFT, KC_BSPC)
 #define MO_MS_W     MO(_MS_WH)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -95,8 +97,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_DVORAK] = KEYMAP( \
   KC_TAB,    KC_QUOT,  KC_COMM,   KC_DOT,    KC_P,      KC_Y,      KC_F,      KC_G,      KC_C,      KC_R,      KC_L,      KC_TAB, \
   HYP_ESC,   KC_A,     ARROW_O,   KC_E,      MSMV_U,    KC_I,      KC_D,      KC_H,      KC_T,      KC_N,      KC_S,      KC_SLSH, \
-  KC_LSFT,   KC_SCLN,  KC_Q,      KC_J,      KC_K,      KC_X,      KC_B,      KC_M,      KC_W,      KC_V,      KC_Z,      RSFT_BS, \
-  KC_LCTL,   ADJUST,   KC_LALT,   KC_LGUI,   LOWER,     KC_SPC,    KC_ENT,    RAISE,     KC_RGUI,   KC_RALT,   ADJUST,    KC_RCTL \
+  KC_LSFT,   KC_SCLN,  KC_Q,      KC_J,      KC_K,      KC_X,      KC_B,      KC_M,      KC_W,      KC_V,      KC_Z,      RSHIFT_BKSP, \
+  KC_LCTL,   ADJUST,   KC_LALT,   KC_LGUI,   LOWER,     KC_SPC,    KC_ENT,    RAISE,     R_GUI_ALFRED,KC_RALT, ADJUST,    KC_RCTL \
 ),
 
 /* Lower
@@ -261,7 +263,26 @@ void matrix_init_user(void) {
   rgblight_setrgb(0x00,0xff,0x00);
 };
 
+int8_t bspc_mode = 0;
+uint16_t gui_timer = 0;
+uint16_t bksp_timer = 0;
+uint16_t bksp_timer2 = 0;
+bool otherkeypressed = false;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  bool queue = true;
+  if (record->event.pressed) {
+    otherkeypressed = true;
+  }
+
+  uint8_t layer = layer_state;
+
+  if (record->event.pressed && bspc_mode == 1 && keycode != RSHIFT_BKSP) {
+    register_code (KC_RSFT);
+    bspc_mode = 0;
+    bksp_timer2 = 0;
+  }
+
   switch (keycode) {
     case QWERTY:
       if (record->event.pressed) {
@@ -270,7 +291,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         #endif
         persistent_default_layer_set(1UL<<_QWERTY);
       }
-      return false;
+      queue = false;
       break;
     case COLEMAK:
       if (record->event.pressed) {
@@ -279,7 +300,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         #endif
         persistent_default_layer_set(1UL<<_COLEMAK);
       }
-      return false;
+      queue = false;
       break;
     case DVORAK:
       if (record->event.pressed) {
@@ -288,7 +309,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         #endif
         persistent_default_layer_set(1UL<<_DVORAK);
       }
-      return false;
+      queue = false;
       break;
     case LOWER:
       if (record->event.pressed) {
@@ -298,7 +319,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       update_tri_layer(_LOWER, _RAISE, _ADJUST);
       update_rgb();
-      return false;
+      queue = false;
       break;
     case RAISE:
     if (record->event.pressed) {
@@ -308,7 +329,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       update_tri_layer(_LOWER, _RAISE, _ADJUST);
       update_rgb();
-      return false;
+      queue = false;
       break;
     case ADJUST:
       if (record->event.pressed) {
@@ -317,17 +338,67 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         layer_off(_ADJUST);
       }
       update_rgb();
-      return false;
+      queue = false;
       break;
+    //switch off mouse wheel layer (when releasing E after U)
     case KC_E:
       if (record->event.pressed) {
       } else {
-        uint8_t layer = biton32(layer_state);
-        switch (layer) {
-          case _MS_WH:
+        if (layer & (1<<_MS_WH)) {
             layer_off(_MS_WH);
         }
       }
+      break;
+    // command when held / pressed as modifier. SFT+CTRL+GUI+Y when tapped.
+    case R_GUI_ALFRED:
+      if (record->event.pressed) {
+        otherkeypressed = false;
+        gui_timer = timer_read();
+        register_code (KC_RGUI);
+      } else {
+        if ((timer_elapsed (gui_timer) < TAPPING_TERM) && (otherkeypressed == false)) {
+          register_code (KC_RSFT);
+          register_code (KC_RCTRL);
+          register_code (KC_Y);
+          unregister_code (KC_Y);
+          unregister_code (KC_RCTRL);
+          unregister_code (KC_RSFT);
+        }
+        unregister_code (KC_RGUI);
+      }
+      queue = false;
+      break;
+
+    // shift when held / pressed as modifier. BSPC when tapped.
+    case RSHIFT_BKSP:
+      if (record->event.pressed) {
+        flatten_lt_keys = true;
+        otherkeypressed = false;
+        if ((bksp_timer2 > 0) && (timer_elapsed(bksp_timer2) < TAPPING_TERM)) {
+          bspc_mode = 1;
+          bksp_timer2 = timer_read();
+        }
+        bksp_timer = timer_read();
+        register_code (KC_RSFT);
+      } else {
+        flatten_lt_keys = false;
+        if (bspc_mode == 2) {
+          bspc_mode = 0;
+          unregister_code (KC_BSPC);
+        } else {
+          if ((timer_elapsed (bksp_timer) < 150) && (otherkeypressed == false)) {
+            unregister_code (KC_RSFT);
+            register_code (KC_BSPC);
+            unregister_code (KC_BSPC);
+            bspc_mode = 0;
+            bksp_timer2 = timer_read();
+          } else {
+            unregister_code (KC_RSFT);
+          }
+          bksp_timer = 0;
+        }
+      }
+      queue = false;
       break;
   }
 
@@ -336,12 +407,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
       case KWM_FLOAT:
         uprint("CMD:KWM_FLOAT\n");
+        queue = false;
         break;
       case KWM_FULLSCREEN:
         uprint("CMD:KWM_FULLSCREEN\n");
+        queue = false;
         break;
     }
   }
 
-  return true;
+  return queue;
 }
+
+
+// Runs constantly in the background, in a loop.
+void matrix_scan_user(void) {
+    if ((bspc_mode == 1) && (bksp_timer2 > 0) && (timer_elapsed(bksp_timer2) > 100)) {
+      bspc_mode = 2;
+      bksp_timer2 = 0;
+      unregister_code (KC_RSFT);
+      register_code (KC_BSPC);
+    }
+};
