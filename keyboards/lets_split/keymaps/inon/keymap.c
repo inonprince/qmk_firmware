@@ -42,8 +42,9 @@ enum custom_keycodes {
 #define XXXXXXX     KC_NO
 #define ARROW_O     LT(_ARROWS,KC_O)
 #define MSMV_U      LT(_MS_MV,KC_U)
-#define HYP_ESC     MT(MOD_HYPR, KC_ESC)
+#define MEH_ESC     MT(MOD_MEH, KC_ESC)
 #define MO_MS_W     MO(_MS_WH)
+#define KC_LOCK     LGUI(LCTL(KC_Q))
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -96,7 +97,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_DVORAK] = KEYMAP( \
   KC_TAB,    KC_QUOT,  KC_COMM,   KC_DOT,    KC_P,      KC_Y,      KC_F,      KC_G,      KC_C,      KC_R,      KC_L,      KC_TAB, \
-  HYP_ESC,   KC_A,     ARROW_O,   KC_E,      MSMV_U,    KC_I,      KC_D,      KC_H,      KC_T,      KC_N,      KC_S,      KC_SLSH, \
+  MEH_ESC,   KC_A,     ARROW_O,   KC_E,      MSMV_U,    KC_I,      KC_D,      KC_H,      KC_T,      KC_N,      KC_S,      KC_SLSH, \
   KC_LSFT,   KC_SCLN,  KC_Q,      KC_J,      KC_K,      KC_X,      KC_B,      KC_M,      KC_W,      KC_V,      KC_Z,      RSHIFT_BKSP, \
   KC_LCTL,   ADJUST,   KC_LALT,   KC_LGUI,   LOWER,     KC_SPC,    KC_ENT,    RAISE,     R_GUI_ALFRED,KC_RALT, ADJUST,    KC_RCTL \
 ),
@@ -203,7 +204,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = KEYMAP( \
-  _______,   RESET,     _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______, \
+  _______,   RESET,     _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   KC_LOCK,   _______, \
   _______,   KWM_FLOAT,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______, \
   _______,   KWM_FULLSCREEN,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______, \
   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______,   _______ \
@@ -254,13 +255,13 @@ void update_rgb(void) {
   } else if (IS_LAYER_ON(_LOWER)) {
     rgblight_setrgb(0xff,0x00,0xff);
   } else {
-    rgblight_setrgb(0x00,0xff,0x00);
+    rgblight_setrgb(0x19,0x46,0x8e);
   }
 }
 
 void matrix_init_user(void) {
   rgblight_mode(1);
-  rgblight_setrgb(0x00,0xff,0x00);
+  rgblight_setrgb(0x19,0x46,0x8e);
 };
 
 int8_t bspc_mode = 0;
