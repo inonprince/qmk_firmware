@@ -44,6 +44,8 @@ int retro_tapping_counter = 0;
 #include <fauxclicky.h>
 #endif
 
+bool flatten_lt_keys = false;
+
 void action_exec(keyevent_t event)
 {
     if (!IS_NOEVENT(event)) {

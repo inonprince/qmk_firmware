@@ -83,6 +83,8 @@ typedef  uint32_t   swap_state_row_t;
 void process_hand_swap(keyevent_t *record);
 #endif
 
+extern bool flatten_lt_keys;
+
 void process_record_nocache(keyrecord_t *record);
 void process_record(keyrecord_t *record);
 void process_action(keyrecord_t *record, action_t action);
