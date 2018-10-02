@@ -5,11 +5,11 @@ if [ ! -z $1 ]; then
 	flags="MASTER=right"
 fi
 pwd
-make ergodox-infinity-inonio $flags
+make ergodox_infinity:inonio $flags
 if [ $? != 0 ]; then
     exit 1
 fi
-sudo make ergodox-infinity-inonio-dfu-util $flags
+sudo make ergodox_infinity:inonio:dfu-util $flags
 # echo "Flashing $flags hand, Press enter key to continue"
 # read x
 
