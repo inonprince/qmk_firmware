@@ -58,6 +58,14 @@ uint8_t mk_wheel_time_to_max = MOUSEKEY_WHEEL_TIME_TO_MAX;
 static uint16_t last_timer = 0;
 static uint16_t last_wheel_timer = 0;
 
+inline int8_t times_inv_sqrt2(int8_t x)
+{
+    // 181/256 is pretty close to 1/sqrt(2)
+    // 0.70703125                 0.707106781
+    // 1 too small for x=99 and x=198
+    // This ends up being a mult and discard lower 8 bits
+    return (x * 181) >> 8;
+}
 
 static uint8_t move_unit(void)
 {

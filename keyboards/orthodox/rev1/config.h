@@ -1,5 +1,9 @@
 /*
+This is the c configuration file for the subproject
+
 Copyright 2012 Jun Wako <wakojun@gmail.com>
+Copyright 2015 Jack Humbert
+Copyright 2017 Art Ortenburger
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,8 +19,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef REV1_CONFIG_H
+#define REV1_CONFIG_H
 
 #include "config_common.h"
 
@@ -41,13 +45,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_COL_PINS { D7, F4, F5, F6, F7, B1, B3, B2, B6 }
 //#define MATRIX_COL_PINS { B2, B3, B1, F7, F6, F5, F4, D7 }
 
-/*/
-//TEENSY
-#define MATRIX_ROW_PINS { D0, C6, C7, }
-#define MATRIX_COL_PINS { D2, F5, F6, F7, B6, B5, B4, D7, D6 }
-/*/
-
-#define CATERINA_BOOTLOADER
 
 /* COL2ROW or ROW2COL */
 #define DIODE_DIRECTION COL2ROW
@@ -68,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* key combination for command */
 #define IS_COMMAND() ( \
-    keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
+    keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_LGUI)) \
 )
 
 /* ws2812 RGB LED */
