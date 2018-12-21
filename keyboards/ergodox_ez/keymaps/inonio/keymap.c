@@ -38,7 +38,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 // If it accepts an argument (i.e, is a function), it doesn't need KC_.
 // Otherwise, it needs KC_*
-[BASE] = KEYMAP(  // layer 0 : default
+[BASE] = LAYOUT_ergodox(  // layer 0 : default
         // left hand
         KC_EQL,         KC_1,           KC_2,           KC_3,           KC_4,           KC_5,           KC_GRV,
         KC_TAB,         KC_QUOT,        KC_COMM,        KC_DOT,         KC_P,           KC_Y,           TG(1),
@@ -81,7 +81,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                 `--------------------'       `--------------------'
  */
 // SYMBOLS
-[SYMB] = KEYMAP(
+[SYMB] = LAYOUT_ergodox(
        // left hand
        RESET  ,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_TRNS,
        KC_TRNS,KC_EXLM,KC_AT,  KC_LCBR,KC_RCBR,KC_PIPE,KC_TRNS,
@@ -92,7 +92,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                KC_TRNS,
                                KC_TRNS,KC_TRNS,KC_TRNS,
        // right hand
-       KC_TRNS, KC_F6,   KC_F7,  KC_F8,   KC_F9,   KC_F10,  KC_F11,
+       RGB_TOG, KC_F6,   KC_F7,  KC_F8,   KC_F9,   KC_F10,  KC_F11,
        KC_TRNS, KC_UP,   KC_7,   KC_8,    KC_9,    KC_ASTR, KC_F12,
                 KC_DOWN, KC_4,   KC_5,    KC_6,    KC_PLUS, KC_TRNS,
        KC_TRNS, KC_AMPR, KC_1,   KC_2,    KC_3,    KC_BSLS, KC_TRNS,
@@ -123,7 +123,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                 `--------------------'       `--------------------'
  */
 // MEDIA AND MOUSE
-KEYMAP(
+[MDIA] = LAYOUT_ergodox(
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
@@ -164,7 +164,7 @@ KEYMAP(
  *                                 `--------------------'       `--------------------'
  */
 // MEDIA AND MOUSE
-KEYMAP(
+[_MOUSEKEYS] = LAYOUT_ergodox(
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_ACL0, KC_ACL1, MO(4),   KC_TRNS, KC_TRNS,
@@ -205,7 +205,7 @@ KEYMAP(
  *                                 `--------------------'       `--------------------'
  */
 // MEDIA AND MOUSE
-KEYMAP(
+[_MOUSESCROLL] = LAYOUT_ergodox(
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_ACL0, KC_ACL1, KC_TRNS, KC_TRNS, KC_TRNS,
@@ -350,24 +350,24 @@ void matrix_scan_user(void) {
       register_code (KC_BSPC);
     }
 
-    uint8_t layer = biton32(layer_state);
+    // uint8_t layer = biton32(layer_state);
 
-    ergodox_board_led_off();
-    ergodox_right_led_1_off();
-    ergodox_right_led_2_off();
-    ergodox_right_led_3_off();
-    switch (layer) {
-      // TODO: Make this relevant to the ErgoDox EZ.
-        case 1:
-            ergodox_right_led_1_on();
-            break;
-        case 2:
-            ergodox_right_led_2_on();
-            break;
-        default:
-            // none
-            break;
-    }
+    // ergodox_board_led_off();
+    // ergodox_right_led_1_off();
+    // ergodox_right_led_2_off();
+    // ergodox_right_led_3_off();
+    // switch (layer) {
+    //   // TODO: Make this relevant to the ErgoDox EZ.
+    //     case 1:
+    //         ergodox_right_led_1_on();
+    //         break;
+    //     case 2:
+    //         ergodox_right_led_2_on();
+    //         break;
+    //     default:
+    //         // none
+    //         break;
+    // }
 };
 
 uint32_t layer_state_set_user(uint32_t state) {
@@ -379,38 +379,33 @@ uint32_t layer_state_set_user(uint32_t state) {
   uint8_t layer = biton32(state);
   switch (layer) {
       case 0:
-        #ifdef RGBLIGHT_COLOR_LAYER_0
-          rgblight_setrgb(RGBLIGHT_COLOR_LAYER_0);
-        #else
-        #ifdef RGBLIGHT_ENABLE
-          rgblight_init();
-        #endif
-        #endif
+        // #ifdef RGBLIGHT_COLOR_LAYER_0
+        //   rgblight_setrgb(RGBLIGHT_COLOR_LAYER_0);
+        // #else
+        rgblight_sethsv_noeeprom_green();
+        rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
+        // if no color desired on layer 0, call rgblight_init() instead
         break;
       case 1:
         ergodox_right_led_1_on();
-        #ifdef RGBLIGHT_COLOR_LAYER_1
-          rgblight_setrgb(RGBLIGHT_COLOR_LAYER_1);
-        #endif
+        rgblight_sethsv_noeeprom_red();
+        rgblight_mode_noeeprom(RGBLIGHT_MODE_BREATHING + 3);
         break;
       case 2:
         ergodox_right_led_2_on();
-        #ifdef RGBLIGHT_COLOR_LAYER_2
-          rgblight_setrgb(RGBLIGHT_COLOR_LAYER_2);
-        #endif
+        rgblight_sethsv_noeeprom_blue();
+        rgblight_mode_noeeprom(RGBLIGHT_MODE_KNIGHT + 2);
         break;
       case 3:
         ergodox_right_led_3_on();
-        #ifdef RGBLIGHT_COLOR_LAYER_3
-          rgblight_setrgb(RGBLIGHT_COLOR_LAYER_3);
-        #endif
+        rgblight_sethsv_noeeprom_chartreuse();
+        rgblight_mode_noeeprom(RGBLIGHT_MODE_KNIGHT + 2);
         break;
       case 4:
         ergodox_right_led_1_on();
         ergodox_right_led_2_on();
-        #ifdef RGBLIGHT_COLOR_LAYER_4
-          rgblight_setrgb(RGBLIGHT_COLOR_LAYER_4);
-        #endif
+        rgblight_sethsv_noeeprom_orange();
+        rgblight_mode_noeeprom(RGBLIGHT_MODE_KNIGHT + 2);
         break;
       case 5:
         ergodox_right_led_1_on();

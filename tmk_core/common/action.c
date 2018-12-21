@@ -896,16 +896,13 @@ void clear_keyboard(void)
     clear_keyboard_but_mods();
 }
 
-<<<<<<< HEAD
 static uint16_t last_cleared_timer = 0;
 
 
-=======
 /** \brief Utilities for actions. (FIXME: Needs better description)
  *
  * FIXME: Needs documentation.
  */
->>>>>>> afd5cda4a0d832bacfff319177fe93968f686a11
 void clear_keyboard_but_mods(void)
 {
     clear_weak_mods();

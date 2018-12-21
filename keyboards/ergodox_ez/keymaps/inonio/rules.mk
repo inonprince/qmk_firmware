@@ -1,5 +1,6 @@
 UNICODE_ENABLE = yes
 MOUSEKEY_ENABLE = yes
+RGBLIGHT_ENABLE  = yes
 
 KEYMAP_VERSION = $(shell \
  if [ -d "${KEYMAP_PATH}/.git" ]; then \
