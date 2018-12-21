@@ -131,10 +131,12 @@ void mousekey_task(void)
         if (mouse_report.y > 0) mouse_payload.y = move_unit();
         if (mouse_report.y < 0) mouse_payload.y = move_unit() * -1;
 
-        /* diagonal move [1/sqrt(2) = 0.7] */
+        /* diagonal move [1/sqrt(2)] */
         if (mouse_payload.x && mouse_payload.y) {
-            mouse_payload.x *= 0.7;
-            mouse_payload.y *= 0.7;
+            mouse_payload.x = times_inv_sqrt2(mouse_payload.x);
+            mouse_payload.x = mouse_payload.x == 0 ? 1 : mouse_payload.x;
+            mouse_payload.y = times_inv_sqrt2(mouse_payload.y);
+            mouse_payload.y = mouse_payload.y == 0 ? 1 : mouse_payload.y;
         }
 
         mouse_payload.buttons = mouse_report.buttons;
