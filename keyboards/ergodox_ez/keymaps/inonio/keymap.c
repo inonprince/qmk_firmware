@@ -42,7 +42,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         // left hand
         KC_EQL,         KC_1,           KC_2,           KC_3,           KC_4,           KC_5,           KC_GRV,
         KC_TAB,         KC_QUOT,        KC_COMM,        KC_DOT,         KC_P,           KC_Y,           TG(1),
-        MT(MOD_HYPR,KC_ESC),KC_A,       LT(2, KC_O),    KC_E,           LT(3, KC_U),    KC_I,
+        MT(MOD_MEH,KC_ESC), KC_A,       LT(2, KC_O),    KC_E,           LT(3, KC_U),    KC_I,
         KC_LSFT,        KC_SCLN,        KC_Q,           KC_J,           KC_K,           KC_X,           MO(1),
         KC_SLSH,        KC_LBRC,        KC_LCTRL,       KC_LALT,        KC_LGUI,
                                                                                         KC_UP,          KC_DOWN,
@@ -247,9 +247,7 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
-#ifdef RGBLIGHT_COLOR_LAYER_0
-    rgblight_setrgb(RGBLIGHT_COLOR_LAYER_0);
-#endif
+  rgblight_sethsv_noeeprom_green();
 };
 
 uint8_t bspc_mode = 0;
@@ -350,24 +348,6 @@ void matrix_scan_user(void) {
       register_code (KC_BSPC);
     }
 
-    // uint8_t layer = biton32(layer_state);
-
-    // ergodox_board_led_off();
-    // ergodox_right_led_1_off();
-    // ergodox_right_led_2_off();
-    // ergodox_right_led_3_off();
-    // switch (layer) {
-    //   // TODO: Make this relevant to the ErgoDox EZ.
-    //     case 1:
-    //         ergodox_right_led_1_on();
-    //         break;
-    //     case 2:
-    //         ergodox_right_led_2_on();
-    //         break;
-    //     default:
-    //         // none
-    //         break;
-    // }
 };
 
 uint32_t layer_state_set_user(uint32_t state) {
