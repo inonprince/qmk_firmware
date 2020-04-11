@@ -26,7 +26,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|  l1  |           |  -   |------+------+------+------+------+--------|
  * | LShift |   :  |   Q  |   J  |   K  |   X  |      |           |      |   B  |   M  |   W  |   V  |   Z  | RShift |
  * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
- *   |   /  |   [  | LCtrl| LAlt | LGui |                                       | Rgui | RAlt | RCtrl|   ]  |  \   |
+ *   |   \  |   /  | LCtrl| LAlt | LGui |                                       | Rgui | RAlt | RCtrl|   [  |  ]   |
  *   `----------------------------------'                                       `----------------------------------'
  *                                        ,-------------.       ,-------------.
  *                                        |  Up  | Down |       | Left | Right|
@@ -44,7 +44,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,         KC_QUOT,        KC_COMM,        KC_DOT,         KC_P,           KC_Y,           TG(1),
         MT(MOD_MEH,KC_ESC), KC_A,       LT(2, KC_O),    KC_E,           LT(3, KC_U),    KC_I,
         KC_LSFT,        KC_SCLN,        KC_Q,           KC_J,           KC_K,           KC_X,           MO(1),
-        KC_SLSH,        KC_LBRC,        KC_LCTRL,       KC_LALT,        KC_LGUI,
+        KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        KC_LGUI,
                                                                                         KC_UP,          KC_DOWN,
                                                                                                         KC_HOME,
                                                                         KC_SPACE,       KC_BSPC,        KC_END,
@@ -54,7 +54,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_EQL,         KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_TAB,
                         KC_D,           KC_H,           KC_T,           KC_N,           KC_S,           MO(1),
         KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           RSHIFT_BKSP,
-                                        R_GUI_ALFRED,   KC_RALT,        KC_RCTRL,       KC_RBRC,        KC_BSLS,
+                                        R_GUI_ALFRED,   KC_RALT,        KC_RCTRL,       KC_LBRC,        KC_RBRC,
         KC_LEFT,          KC_RIGHT,
         KC_PGUP,
         KC_PGDN,        KC_BSPC,        KC_ENT
