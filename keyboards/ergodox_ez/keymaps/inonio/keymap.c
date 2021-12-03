@@ -11,7 +11,8 @@
 
 enum custom_keycodes {
   R_GUI_ALFRED = SAFE_RANGE,
-  RSHIFT_BKSP
+  RSHIFT_BKSP,
+  TOGGLE_KVM
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -32,8 +33,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                        |  Up  | Down |       | Left | Right|
  *                                 ,------|------|------|       |------+--------+------.
  *                                 |      |      | Home |       | PgUp |        |      |
- *                                 | Space|Backsp|------|       |------| Bkspc  |Enter |
- *                                 |      |ace   | End  |       | PgDn |        |      |
+ *                                 | Space| Bkspc|------|       |------| TglKVM |Enter |
+ *                                 |      |      | End  |       | PgDn |        |      |
  *                                 `--------------------'       `----------------------'
  */
 // If it accepts an argument (i.e, is a function), it doesn't need KC_.
@@ -57,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                         R_GUI_ALFRED,   KC_RALT,        KC_RCTRL,       KC_LBRC,        KC_RBRC,
         KC_LEFT,          KC_RIGHT,
         KC_PGUP,
-        KC_PGDN,        KC_BSPC,        KC_ENT
+        KC_PGDN,        TOGGLE_KVM,        KC_ENT
     ),
 /* Keymap 1: Symbol Layer
  *
@@ -247,7 +248,7 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
-  rgblight_sethsv_noeeprom_green();
+  // rgblight_sethsv_noeeprom_green();
 };
 
 uint8_t bspc_mode = 0;
@@ -255,6 +256,7 @@ uint16_t gui_timer = 0;
 uint16_t bksp_timer = 0;
 uint16_t bksp_timer2 = 0;
 bool otherkeypressed = false;
+uint16_t current_kvm_key = KC_1;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   bool queue = true;
@@ -279,6 +281,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (layer & (1<<_MOUSESCROLL)) {
             layer_off(_MOUSESCROLL);
         }
+      }
+      break;
+
+    case TOGGLE_KVM:
+      if (record->event.pressed) {
+      } else {
+        if (current_kvm_key == KC_1) {
+          current_kvm_key = KC_2;
+        } else {
+          current_kvm_key = KC_1;
+        }
+        register_code (KC_SLCK);
+        unregister_code (KC_SLCK);
+        register_code (KC_SLCK);
+        unregister_code (KC_SLCK);
+        register_code (current_kvm_key);
+        unregister_code (current_kvm_key);
       }
       break;
 
