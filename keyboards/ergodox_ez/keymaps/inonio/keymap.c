@@ -246,9 +246,20 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
     return MACRO_NONE;
 };
 
+bool initialized = 0;
+
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
-  // rgblight_sethsv_noeeprom_green();
+  if (!initialized){
+    dprintf("Initializing in matrix_scan_user");
+    ergodox_board_led_off();
+    ergodox_right_led_1_off();
+    ergodox_right_led_2_off();
+    ergodox_right_led_3_off();
+    rgblight_disable();
+    rgblight_init();
+    initialized = 1;
+  }
 };
 
 uint8_t bspc_mode = 0;
@@ -292,12 +303,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else {
           current_kvm_key = KC_1;
         }
-        register_code (KC_SLCK);
-        unregister_code (KC_SLCK);
-        register_code (KC_SLCK);
-        unregister_code (KC_SLCK);
+
+        register_code (KC_LCTRL);
+        unregister_code (KC_LCTRL);
+        register_code (KC_LCTRL);
+        unregister_code (KC_LCTRL);
         register_code (current_kvm_key);
         unregister_code (current_kvm_key);
+
+        if (current_kvm_key == KC_1) {
+          ergodox_right_led_1_off();
+        } else {
+          ergodox_right_led_1_on();
+        }
       }
       break;
 
@@ -370,60 +388,43 @@ void matrix_scan_user(void) {
 };
 
 uint32_t layer_state_set_user(uint32_t state) {
-  ergodox_board_led_off();
-  ergodox_right_led_1_off();
-  ergodox_right_led_2_off();
-  ergodox_right_led_3_off();
 
   uint8_t layer = biton32(state);
+
+  if (layer == BASE) {
+    rgblight_disable_noeeprom();
+  } else {
+    rgblight_enable_noeeprom();
+  }
+
   switch (layer) {
-      case 0:
-        // #ifdef RGBLIGHT_COLOR_LAYER_0
-        //   rgblight_setrgb(RGBLIGHT_COLOR_LAYER_0);
-        // #else
-        rgblight_sethsv_noeeprom_green();
-        rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
-        // if no color desired on layer 0, call rgblight_init() instead
+      case BASE:
         break;
-      case 1:
-        ergodox_right_led_1_on();
+      case SYMB:
         rgblight_sethsv_noeeprom_red();
-        rgblight_mode_noeeprom(RGBLIGHT_MODE_BREATHING + 3);
         break;
-      case 2:
-        ergodox_right_led_2_on();
+      case MDIA:
+        // arrows and media
         rgblight_sethsv_noeeprom_blue();
-        rgblight_mode_noeeprom(RGBLIGHT_MODE_KNIGHT + 2);
         break;
-      case 3:
-        ergodox_right_led_3_on();
+      case _MOUSEKEYS:
+      // mouse
         rgblight_sethsv_noeeprom_chartreuse();
-        rgblight_mode_noeeprom(RGBLIGHT_MODE_KNIGHT + 2);
         break;
-      case 4:
-        ergodox_right_led_1_on();
-        ergodox_right_led_2_on();
+      case _MOUSESCROLL:
         rgblight_sethsv_noeeprom_orange();
-        rgblight_mode_noeeprom(RGBLIGHT_MODE_KNIGHT + 2);
         break;
       case 5:
-        ergodox_right_led_1_on();
-        ergodox_right_led_3_on();
         #ifdef RGBLIGHT_COLOR_LAYER_5
           rgblight_setrgb(RGBLIGHT_COLOR_LAYER_5);
         #endif
         break;
       case 6:
-        ergodox_right_led_2_on();
-        ergodox_right_led_3_on();
         #ifdef RGBLIGHT_COLOR_LAYER_6
           rgblight_setrgb(RGBLIGHT_COLOR_LAYER_6);
         #endif
         break;
       case 7:
-        ergodox_right_led_1_on();
-        ergodox_right_led_2_on();
-        ergodox_right_led_3_on();
         #ifdef RGBLIGHT_COLOR_LAYER_7
           rgblight_setrgb(RGBLIGHT_COLOR_LAYER_6);
         #endif
