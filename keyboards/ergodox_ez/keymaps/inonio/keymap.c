@@ -12,7 +12,8 @@
 enum custom_keycodes {
   R_GUI_ALFRED = SAFE_RANGE,
   RSHIFT_BKSP,
-  TOGGLE_KVM
+  TOGGLE_KVM,
+  L_GUI_VIMAC,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -33,7 +34,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                        |  Up  | Down |       | Left | Right|
  *                                 ,------|------|------|       |------+--------+------.
  *                                 |      |      | Home |       | PgUp |        |      |
- *                                 | Space| Bkspc|------|       |------| TglKVM |Enter |
+ *                                 | Space| BSPC |------|       |------| TglKVM |Enter |
  *                                 |      |      | End  |       | PgDn |        |      |
  *                                 `--------------------'       `----------------------'
  */
@@ -45,7 +46,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,         KC_QUOT,        KC_COMM,        KC_DOT,         KC_P,           KC_Y,           TG(1),
         MT(MOD_MEH,KC_ESC), KC_A,       LT(2, KC_O),    KC_E,           LT(3, KC_U),    KC_I,
         KC_LSFT,        KC_SCLN,        KC_Q,           KC_J,           KC_K,           KC_X,           MO(1),
-        KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        KC_LGUI,
+        KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        L_GUI_VIMAC,
                                                                                         KC_UP,          KC_DOWN,
                                                                                                         KC_HOME,
                                                                         KC_SPACE,       KC_BSPC,        KC_END,
@@ -274,6 +275,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     otherkeypressed = true;
   }
+  uint16_t key_to_press;
 
   uint8_t layer = layer_state;
 
@@ -339,8 +341,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       queue = false;
       break;
 
-    // shift when held / pressed as modifier. BSPC when tapped.
+    case L_GUI_VIMAC:
+      if (record->event.pressed) {
+        otherkeypressed = false;
+        gui_timer = timer_read();
+        register_code (KC_LGUI);
+      } else {
+        if ((timer_elapsed (gui_timer) < TAPPING_TERM) && (otherkeypressed == false)) {
+          register_code (KC_LSFT);
+          register_code (KC_ENT);
+          unregister_code (KC_ENT);
+          unregister_code (KC_LSFT);
+        }
+        unregister_code (KC_LGUI);
+      }
+      queue = false;
+      break;
+
+
+    // shift when held / pressed as modifier. BSPC / DEL when tapped.
     case RSHIFT_BKSP:
+      if (biton32(layer_state) == SYMB) {
+        key_to_press = KC_DEL;
+      } else {
+        key_to_press = KC_BSPC;
+      }
       if (record->event.pressed) {
         flatten_lt_keys = true;
         otherkeypressed = false;
@@ -354,12 +379,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         flatten_lt_keys = false;
         if (bspc_mode == 2) {
           bspc_mode = 0;
-          unregister_code (KC_BSPC);
+          unregister_code (key_to_press);
         } else {
           if ((timer_elapsed (bksp_timer) < 150) && (otherkeypressed == false)) {
             unregister_code (KC_RSFT);
-            register_code (KC_BSPC);
-            unregister_code (KC_BSPC);
+            register_code (key_to_press);
+            unregister_code (key_to_press);
             bspc_mode = 0;
             bksp_timer2 = timer_read();
           } else {
