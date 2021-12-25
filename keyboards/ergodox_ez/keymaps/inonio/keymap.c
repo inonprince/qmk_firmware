@@ -14,6 +14,7 @@ enum custom_keycodes {
   RSHIFT_BKSP,
   TOGGLE_KVM,
   L_GUI_VIMAC,
+  L_GUI_TAB,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -49,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        L_GUI_VIMAC,
                                                                                         KC_UP,          KC_DOWN,
                                                                                                         KC_HOME,
-                                                                        KC_SPACE,       KC_BSPC,        KC_END,
+                                                                        KC_SPACE,       L_GUI_TAB,      KC_END,
 
         // right hand
         TG(2),          KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_CAPS,
@@ -318,6 +319,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else {
           ergodox_right_led_1_on();
         }
+      }
+      break;
+    
+    case L_GUI_TAB:
+      if (record->event.pressed) {
+        register_code (KC_RGUI);
+        register_code (KC_TAB);
+        unregister_code (KC_TAB);
+      } else {
+        unregister_code (KC_RGUI);
       }
       break;
 
