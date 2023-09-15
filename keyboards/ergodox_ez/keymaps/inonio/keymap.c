@@ -8,6 +8,7 @@
 #define MDIA 2 // media keys
 #define _MOUSEKEYS 3
 #define _MOUSESCROLL 4
+#define _QWERTY 5
 
 enum custom_keycodes {
   R_GUI_ALFRED = SAFE_RANGE,
@@ -32,7 +33,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *   |   \  |   /  | LCtrl| LAlt | LGui |                                       | Rgui | RAlt | RCtrl|   [  |  ]   |
  *   `----------------------------------'                                       `----------------------------------'
  *                                        ,-------------.       ,-------------.
- *                                        |  Up  | Down |       | Left | Right|
+ *                                        | Left | Right|       | Down |  Up  |
  *                                 ,------|------|------|       |------+--------+------.
  *                                 |      |      | Home |       | PgUp |        |      |
  *                                 | Space| BSPC |------|       |------| TglKVM |Enter |
@@ -48,7 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MT(MOD_MEH,KC_ESC), KC_A,       LT(2, KC_O),    KC_E,           LT(3, KC_U),    KC_I,
         KC_LSFT,        KC_SCLN,        KC_Q,           KC_J,           KC_K,           KC_X,           MO(1),
         KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        L_GUI_VIMAC,
-                                                                                        KC_UP,          KC_DOWN,
+                                                                                        KC_LEFT,        KC_RIGHT,
                                                                                                         KC_HOME,
                                                                         KC_SPACE,       L_GUI_TAB,      KC_END,
 
@@ -58,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                         KC_D,           KC_H,           KC_T,           KC_N,           KC_S,           MO(1),
         KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           RSHIFT_BKSP,
                                         R_GUI_ALFRED,   KC_RALT,        KC_RCTRL,       KC_LBRC,        KC_RBRC,
-        KC_LEFT,          KC_RIGHT,
+        KC_DOWN,        KC_UP,
         KC_PGUP,
         KC_PGDN,        TOGGLE_KVM,        KC_ENT
     ),
@@ -84,6 +85,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                 `--------------------'       `--------------------'
  */
 // SYMBOLS
+
 [SYMB] = LAYOUT_ergodox(
        // left hand
        RESET  ,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_TRNS,
@@ -227,6 +229,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS
 ),
+
 };
 
 const uint16_t PROGMEM fn_actions[] = {
