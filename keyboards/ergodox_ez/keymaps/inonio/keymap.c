@@ -4,11 +4,12 @@
 #include "timer.h"
 
 #define BASE 0 // default layer
-#define SYMB 1 // symbols
-#define MDIA 2 // media keys
-#define _MOUSEKEYS 3
-#define _MOUSESCROLL 4
-#define _QWERTY 5
+#define _QWERTY 1
+#define SYMB 2 // symbols
+#define MDIA 3 // media keys
+#define _MOUSEKEYS 4
+#define _MOUSESCROLL 5
+
 
 enum custom_keycodes {
   R_GUI_ALFRED = SAFE_RANGE,
@@ -45,30 +46,51 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [BASE] = LAYOUT_ergodox(  // layer 0 : default
         // left hand
         KC_EQL,         KC_1,           KC_2,           KC_3,           KC_4,           KC_5,           KC_GRV,
-        KC_TAB,         KC_QUOT,        KC_COMM,        KC_DOT,         KC_P,           KC_Y,           TG(1),
-        MT(MOD_MEH,KC_ESC), KC_A,       LT(2, KC_O),    KC_E,           LT(3, KC_U),    KC_I,
-        KC_LSFT,        KC_SCLN,        KC_Q,           KC_J,           KC_K,           KC_X,           MO(1),
+        KC_TAB,         KC_QUOT,        KC_COMM,        KC_DOT,         KC_P,           KC_Y,           TG(SYMB),
+        MT(MOD_MEH,KC_ESC), KC_A,       LT(MDIA, KC_O),    KC_E,           LT(_MOUSEKEYS, KC_U),    KC_I,
+        KC_LSFT,        KC_SCLN,        KC_Q,           KC_J,           KC_K,           KC_X,           MO(SYMB),
         KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        L_GUI_VIMAC,
                                                                                         KC_LEFT,        KC_RIGHT,
                                                                                                         KC_HOME,
                                                                         KC_SPACE,       L_GUI_TAB,      KC_END,
 
         // right hand
-        TG(2),          KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_CAPS,
+        TG(MDIA),          KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_CAPS,
         KC_EQL,         KC_F,           KC_G,           KC_C,           KC_R,           KC_L,           KC_TAB,
-                        KC_D,           KC_H,           KC_T,           KC_N,           KC_S,           MO(1),
+                        KC_D,           KC_H,           KC_T,           KC_N,           KC_S,           MO(SYMB),
         KC_MINS,        KC_B,           KC_M,           KC_W,           KC_V,           KC_Z,           RSHIFT_BKSP,
                                         R_GUI_ALFRED,   KC_RALT,        KC_RCTRL,       KC_LBRC,        KC_RBRC,
         KC_DOWN,        KC_UP,
         KC_PGUP,
         KC_PGDN,        TOGGLE_KVM,        KC_ENT
     ),
+[_QWERTY] = LAYOUT_ergodox(
+        // left hand
+      KC_ESC,         KC_1,           KC_2,           KC_3,           KC_4,           KC_5,           KC_GRV,
+      KC_TAB,         KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,           TG(SYMB),
+      KC_CAPS,        KC_A,           KC_S,           KC_D,           KC_F,           KC_G,
+      KC_LSFT,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,           MO(SYMB),
+      KC_BSLS,        KC_SLSH,        KC_LCTRL,       KC_LALT,        KC_LGUI,
+                                                                                      KC_LEFT,        KC_RIGHT,
+                                                                                                      KC_HOME,
+                                                                      KC_SPACE,       KC_LGUI,         KC_END,
+
+      // right hand
+      TG(MDIA),       KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_BSPC,
+      KC_EQL,         KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_TAB,
+                      KC_H,           KC_J,           KC_K,           KC_L,           KC_SCLN,        MO(SYMB),
+      KC_MINS,        KC_N,           KC_M,           KC_COMM,        KC_DOT,         CTL_T(KC_SLSH), KC_RSFT,
+                                      KC_RGUI,        KC_RALT,        KC_RCTRL,       KC_LBRC,        KC_RBRC,
+      KC_DOWN,        KC_UP,
+      KC_PGUP,
+      KC_PGDN,        KC_DEL,        KC_ENT
+  ),
 /* Keymap 1: Symbol Layer
  *
  * ,--------------------------------------------------.           ,--------------------------------------------------.
  * | RESET  |  F1  |  F2  |  F3  |  F4  |  F5  |      |           |      |  F6  |  F7  |  F8  |  F9  |  F10 |   F11  |
  * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
- * |        |   !  |   @  |   {  |   }  |   |  |      |           |      |   Up |   7  |   8  |   9  |   *  |   F12  |
+ * |        |   !  |   @  |   {  |   }  |   |  |QWERTY|           |      |   Up |   7  |   8  |   9  |   *  |   F12  |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
  * |        |   #  |   $  |   (  |   )  |   `  |------|           |------| Down |   4  |   5  |   6  |   +  |        |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
@@ -85,11 +107,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                 `--------------------'       `--------------------'
  */
 // SYMBOLS
-
 [SYMB] = LAYOUT_ergodox(
        // left hand
        RESET  ,KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_TRNS,
-       KC_TRNS,KC_EXLM,KC_AT,  KC_LCBR,KC_RCBR,KC_PIPE,KC_TRNS,
+       KC_TRNS,KC_EXLM,KC_AT,  KC_LCBR,KC_RCBR,KC_PIPE,TG(_QWERTY),
        KC_MS_R,KC_HASH,KC_DLR, KC_LPRN,KC_RPRN,KC_GRV,
        KC_MS_L,KC_PERC,KC_CIRC,KC_LBRC,KC_RBRC,KC_TILD,KC_TRNS,
        KC_WH_L,KC_WH_D,KC_WH_U,KC_WH_R,KC_ACL1,
@@ -172,7 +193,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_MOUSEKEYS] = LAYOUT_ergodox(
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-       KC_TRNS, KC_ACL0, KC_ACL1, MO(4),   KC_TRNS, KC_TRNS,
+       KC_TRNS, KC_ACL0, KC_ACL1, MO(_MOUSESCROLL), KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
                                            KC_TRNS, KC_TRNS,
@@ -453,10 +474,8 @@ uint32_t layer_state_set_user(uint32_t state) {
       case _MOUSESCROLL:
         rgblight_sethsv_noeeprom_orange();
         break;
-      case 5:
-        #ifdef RGBLIGHT_COLOR_LAYER_5
-          rgblight_setrgb(RGBLIGHT_COLOR_LAYER_5);
-        #endif
+      case _QWERTY:
+        rgblight_sethsv_noeeprom_teal();
         break;
       case 6:
         #ifdef RGBLIGHT_COLOR_LAYER_6
