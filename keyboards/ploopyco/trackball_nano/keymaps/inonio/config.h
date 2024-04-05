@@ -1,0 +1,1 @@
+#define PLOOPY_DPI_OPTIONS { 750, 1200, 400 }
